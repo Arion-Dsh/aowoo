@@ -1,10 +1,11 @@
 //go:build windows
 
-package github.com/arion-dsh/aowoo
+package aowoo
 
 import (
-	"github.com/arion-dsh/aowoo/wasap"
 	"sync"
+
+	"github.com/arion-dsh/aowoo/wasap"
 )
 
 func newDriver(rate, depth, chs int) driver {

@@ -1,9 +1,14 @@
-package github.com/arion-dsh/aowoo
+package aowoo
 
 import (
+	"errors"
 	"io"
 	"sync"
 )
+
+var ErrorSourceAlreadyLoaded = errors.New("error: source already in aowoo.")
+var ErrorSourceValumeRange = errors.New("aowoo source must betwee 0 and 1")
+var ErrorAowooNotOpen = errors.New("Aowoo must be open before!")
 
 var p *player
 
@@ -29,10 +34,9 @@ func (p *player) set(sampleRate, bitsdepth, channels int) {
 
 type Source struct {
 	mu  sync.Mutex
-	id  uint32
 	src io.ReadCloser
 
-	valmue float32
+	volmue float32
 
 	pause bool
 }

@@ -1,11 +1,12 @@
 //go:build darwin
 // +build darwin
 
-package github.com/arion-dsh/aowoo
+package aowoo
 
 import (
-	"github.com/arion-dsh/aowoo/avaudio"
 	"sync"
+
+	"github.com/arion-dsh/aowoo/avaudio"
 )
 
 func newDriver(rate, depth, chs int) driver {

@@ -1,7 +1,7 @@
 //go:build linux
 // +build linux
 
-package github.com/arion-dsh/aowoo
+package aowoo
 
 /*
 #cgo LDFLAGS: -lasound
@@ -62,7 +62,12 @@ func (a *alsa) paused(s state) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	C.snd_pcm_pause(a.handle, C.int(s))
+}
 
+func (a *alsa) close() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	C.snd_pcm_close(a.handle)
 }
 
 func (a *alsa) setCallback(f callback) {

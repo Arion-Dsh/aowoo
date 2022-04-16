@@ -1,7 +1,7 @@
 //go:build !js
 // +build !js
 
-package github.com/arion-dsh/aowoo
+package aowoo
 
 import (
 	"io"
@@ -19,76 +19,76 @@ func Open(sampleRate, bitsdepth, channels int) {
 	p.set(sampleRate, bitsdepth, channels)
 	p.driver = newDriver(sampleRate, bitsdepth, channels)
 	p.driver.setCallback(p.callback)
-	p.cond.Broadcast()
 }
 
-func NewSource(src io.ReadCloser, valmue float32, autoPlay bool) *Source {
-	if s, ok := p.sources[src]; ok {
-		return s
+func NewSource(src io.ReadCloser, volmue float32, autoPlay bool) (*Source, error) {
+
+	if p == nil {
+		return nil, ErrorAowooNotOpen
 	}
 
-	if valmue > 1 || valmue < 0 {
-		panic("aowoo source must betwee 0 and 1")
+	if s, ok := p.sources[src]; ok {
+		return s, ErrorSourceAlreadyLoaded
 	}
+
+	if volmue > 1 || volmue < 0 {
+		return nil, ErrorSourceValumeRange
+	}
+
 	s := &Source{
-		id:     newAowooID(),
-		valmue: valmue,
+		volmue: volmue,
 		src:    src,
 		pause:  true,
 	}
+
 	if autoPlay {
 		s.pause = false
 		p.sources[src] = s
 	}
-	return s
+	return s, nil
 }
 
-func PlaySource(ss ...*Source) {
-	p.cond.L.Lock()
-	defer p.cond.L.Unlock()
-	if p.state != playing {
-		p.cond.Wait()
-	}
+func Play(ss ...*Source) {
 	for _, s := range ss {
-		if s == nil {
-			panic("aowoo Source not be nil")
-		}
-		s.pause = false
 		p.sources[s.src] = s
+		go func(sr *Source) {
+			p.cond.L.Lock()
+			defer p.cond.L.Unlock()
+			p.cond.Wait()
+			sr.pause = false
+		}(s)
 	}
+
+	p.cond.Broadcast()
+
 }
 
-func DelSource(ss ...*Source) {
-	p.cond.L.Lock()
-	defer p.cond.L.Unlock()
+func Stop(ss ...*Source) {
 	p.delSource(ss...)
 }
-func (p *player) Resume() {
-	p.cond.L.Lock()
-	defer p.cond.L.Unlock()
-	p.state = playing
-	p.cond.Broadcast()
+
+func Resume(ss ...*Source) {
+	for _, s := range ss {
+		s.pause = false
+	}
 }
 
-func (p *player) Puase() {
-	p.cond.L.Lock()
-	defer p.cond.L.Unlock()
-	p.state = paused
-	p.cond.Broadcast()
+func Puase(ss ...*Source) {
+	for _, s := range ss {
+		s.pause = true
+	}
 
 }
+
 func (p *player) delSource(ss ...*Source) {
 	for _, s := range ss {
+		s.pause = true
 		s.src.Close()
 		delete(p.sources, s.src)
 	}
 }
 
 func (p *player) callback(b []float32) (int, error) {
-
-	if p.state != playing {
-		return 0, nil
-	}
 
 	var done []*Source
 	read := 0
@@ -105,7 +105,7 @@ func (p *player) callback(b []float32) (int, error) {
 			read = n
 		}
 		for i := 0; i < len(b); i++ {
-			b[i] += bf32(d[2*i:]) * s.valmue
+			b[i] = bf32(d[2*i:]) * s.volmue
 		}
 
 	}

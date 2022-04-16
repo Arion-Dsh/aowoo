@@ -75,6 +75,8 @@ func (d *device) Pause(state int) {
 
 }
 
+func (d device) Close() {}
+
 //export read_data
 func read_data(buff *C.float, l C.int, ctx_ unsafe.Pointer) {
 

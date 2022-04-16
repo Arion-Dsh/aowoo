@@ -1,11 +1,12 @@
 //go:build android
 // +build android
 
-package github.com/arion-dsh/aowoo
+package aowoo
 
 import (
-	"github.com/arion-dsh/aowoo/oboe"
 	"sync"
+
+	"github.com/arion-dsh/aowoo/oboe"
 )
 
 func newDriver(rate, depth, chs int) driver {

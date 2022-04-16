@@ -91,8 +91,6 @@ void CALLBACK WaveOutProc(HWAVEOUT waveOut, UINT uMsg, DWORD_PTR dwInstance, DWO
 {
 
     if (uMsg == MM_WOM_DONE) {
-
-
         WAVEHDR *waveHeader = (WAVEHDR *)dwParam1;
        QueueData(waveOut, waveHeader);
     }

@@ -1,4 +1,4 @@
-package github.com/arion-dsh/aowoo
+package aowoo
 
 import (
 	"sync"
